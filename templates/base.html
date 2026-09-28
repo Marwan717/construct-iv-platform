@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}FieldView{% endblock %} · Construction Flight Archive</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  {% if current_user.is_authenticated %}<header class="topbar"><a class="brand" href="{{ url_for('dashboard') }}"><span class="brand-mark">F</span><span>FIELDVIEW<small>CONSTRUCTION FLIGHT ARCHIVE</small></span></a><nav><a href="{{ url_for('dashboard') }}">Archive</a>{% if current_user.is_admin %}<a href="{{ url_for('admin') }}">Admin</a><a href="{{ url_for('upload') }}">Upload</a>{% endif %}</nav><div class="user-menu"><span>{{ current_user.name }}</span><form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="quiet">Sign out</button></form></div></header>{% endif %}
+  <main class="{% if current_user.is_authenticated %}shell{% else %}auth-shell{% endif %}">
+    {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-stack">{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</body></html>

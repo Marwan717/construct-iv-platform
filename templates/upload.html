@@ -1,0 +1,23 @@
+{% extends 'base.html' %}{% block title %}Upload footage{% endblock %}{% block content %}
+<p class="breadcrumb"><a href="{{ url_for('admin') }}">← Admin</a></p>
+<div class="upload-heading"><div><p class="eyebrow">MEDIA INGEST</p><h1>Upload footage</h1><p class="muted">Add several flights for the same project and date.</p></div></div>
+<form method="post" action="{{ url_for('upload_batch') }}" enctype="multipart/form-data" class="panel footage-form" id="footage-form">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <div class="footage-shared"><label>Date for all footage<input type="date" name="date" required></label><label>Project<select name="project">{% for project in projects %}<option value="{{ project }}" {% if project=='Main Project' %}selected{% endif %}>{{ project }}</option>{% else %}<option value="Main Project">Main Project</option>{% endfor %}</select></label></div>
+  <div class="video-rows-heading"><div><h2>Videos and directions</h2><p class="muted">Drop each video in its box, then label it on the right.</p></div><span class="upload-count" id="upload-count">1 video</span></div>
+  <div class="video-rows" id="video-rows">
+    <div class="video-upload-row">
+      <label class="video-dropcard"><input type="file" name="videos" accept="video/mp4,video/quicktime,video/webm,video/x-msvideo" required><span class="dropcard-icon">＋</span><strong class="dropcard-name">Drop video here or browse</strong><small>MP4, MOV, M4V, WEBM, or AVI</small></label>
+      <div class="video-label-fields"><label>Flight title<input name="titles" maxlength="200" placeholder="e.g. North Flight"></label><label>Direction<select name="directions" required>{% for direction in directions %}<option value="{{ direction }}">{{ direction }}</option>{% endfor %}</select></label></div>
+      <button class="remove-video" type="button" aria-label="Remove video row" title="Remove row" disabled>×</button>
+    </div>
+  </div>
+  <button class="add-video-row" type="button" id="add-video-row">＋ Add another video</button>
+  <div class="footage-actions"><a class="button secondary" href="{{ url_for('admin') }}">Cancel</a><button class="button primary" type="submit">Upload all footage</button></div>
+</form>
+<script>
+const directionOptions={{ directions|tojson }};const rows=document.getElementById('video-rows'),count=document.getElementById('upload-count');
+function updateRows(){const list=[...rows.querySelectorAll('.video-upload-row')];count.textContent=list.length+' video'+(list.length===1?'':'s');list.forEach(row=>{row.querySelector('.remove-video').disabled=list.length===1;const input=row.querySelector('input[type=file]');input.required=!input.files.length})}
+function bindRow(row){const input=row.querySelector('input[type=file]'),drop=row.querySelector('.video-dropcard'),title=row.querySelector('input[name=titles]');input.addEventListener('change',()=>{const file=input.files[0];if(file){row.querySelector('.dropcard-name').textContent=file.name;drop.classList.add('has-file');if(!title.value)title.value=file.name.replace(/\\.[^.]+$/,'')}});['dragenter','dragover'].forEach(event=>drop.addEventListener(event,e=>{e.preventDefault();drop.classList.add('dragging')}));['dragleave','drop'].forEach(event=>drop.addEventListener(event,e=>{e.preventDefault();drop.classList.remove('dragging')}));drop.addEventListener('drop',e=>{if(e.dataTransfer.files.length){input.files=e.dataTransfer.files;input.dispatchEvent(new Event('change',{bubbles:true}))}});row.querySelector('.remove-video').addEventListener('click',()=>{if(rows.children.length>1){row.remove();updateRows()}})}
+bindRow(rows.firstElementChild);document.getElementById('add-video-row').addEventListener('click',()=>{const row=document.createElement('div');row.className='video-upload-row';row.innerHTML='<label class="video-dropcard"><input type="file" name="videos" accept="video/mp4,video/quicktime,video/webm,video/x-msvideo" required><span class="dropcard-icon">＋</span><strong class="dropcard-name">Drop video here or browse</strong><small>MP4, MOV, M4V, WEBM, or AVI</small></label><div class="video-label-fields"><label>Flight title<input name="titles" maxlength="200" placeholder="e.g. East Flight"></label><label>Direction<select name="directions" required></select></label></div><button class="remove-video" type="button" aria-label="Remove video row" title="Remove row">×</button>';const select=row.querySelector('select');directionOptions.forEach(value=>{const option=document.createElement('option');option.value=value;option.textContent=value;select.appendChild(option)});rows.appendChild(row);bindRow(row);updateRows()});updateRows();
+</script>{% endblock %}
