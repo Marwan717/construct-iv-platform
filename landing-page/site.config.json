@@ -1,0 +1,5 @@
+{
+  "platformLoginUrl": "http://127.0.0.1:5009/login",
+  "platformSignupUrl": "http://127.0.0.1:5009/register",
+  "platformEnterpriseUrl": "http://127.0.0.1:5009/enterprise/request"
+}

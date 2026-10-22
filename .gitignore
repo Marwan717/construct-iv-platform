@@ -5,5 +5,9 @@ instance/
 static/uploads/*
 !static/uploads/.gitkeep
 .env
+.env.*
+!.env.example
+!.env.testing.example
+!.env.production.example
 
 .DS_Store
